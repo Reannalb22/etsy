@@ -43,6 +43,11 @@ console.log(data)})
 
 var HomeView = Backbone.View.extend({
 	el:"#container",
+
+	events:{
+		"keypress input": "getUserQuery",
+		"click .images": "getDetailsView"
+	},
 	
 	render: function(){
 		console.log(this)
@@ -57,53 +62,98 @@ var HomeView = Backbone.View.extend({
 			input = `<input type="text" placeholder="Search Etsy!"></input>`
 
 		this.$el.html(title + input + htmlString)
-		// this.$el.html(
-		// 	`<input type="text" placeholder="Search Etsy!"></input>`
-		// 	)
 	},
-})
+
+	getUserQuery: function(event){
+		console.log('event triggered')
+		if (event.keyCode === 13){
+			var inputEl = event.target,
+				keywords = inputEl.value
+			location.hash = `search/${keywords}`
+		}
+	}
+
+// 	getDetailsView: function() {
+// 		var imgEl = event.target,
+// 			id = imgEl.value
+// 		location.hash = `details/${id}`
+// 	}
+// })
 
 // var DetailsView = Backbone.View.extend({
-// 	//detail view stuff
+// 	el: "#container",
 
-// })
+// 	getProductInfo: function(product){
+// 		var htmlString_details = `
+// 		<div id='details view'>
+// 				<p> Title: ${product.attributes.title}</p>
+// 				<p> Description: ${product.attributes.description}</p>
+// 				<img src= ${product.attributes.MainImage.url_170x135}>
+
+// 		</div>`
+// 		return htmlString_details
+// 	},
+	
+
+
+// 	render: function(){
+// 		console.log('pulling up details view')
+		
+// 		var etsyArray = this.collection.models
+// 		var htmlString = ""
+// 			etsyArray.forEach((obj)=>{
+// 				htmlString += this.getProductInfo(obj)
+// 			})
+// 	}
+
+})
 
 
 
 
 
 // initialize: function(){
-// 		this.listenTo(this.model, 'sync', this.render)
+// 		this.listenTo(this.model, 'update', this.render)
 // 	}
-// }),
+// })
 
 
 
 //-----------------ROUTER-----------------------
-	EtsyRouter = Backbone.Router.extend({
+var EtsyRouter = Backbone.Router.extend({
 	routes:{
-		'*path/:home': showHomeScreen,
-		'search/:keywords': showSearch,
-		'details/:id': showDetailsScreen
+		
+		'search/:keywords': 'showSearch',
+		'*anyroute/:home': 'showHomeScreen'
+		// 'details/:id': 'showDetailsScreen'
 	},
 
-	// showHomeScreen: function(query){
-	// 	console.log('showing default')
-	// 	this.ec.query = 'sweater' 
-	// 	this.ec.fetch({
-	// 		processData: true,
-	// 		dataType: 'jsonp'
-	// 	})
-	// },
+	showHomeScreen: function(){
+		console.log('showing default')
+		this.ets.fetch({
+			processData: true
+		})
+	},
 
-// 	initialize: function(){
-// 		this.ec= new EtsyCollection()
-		
-// 		this.hv = new HomeView({collection:this.ec})
-// 		console.log(ec)
-// 	}
+	showSearch: function(keywords){
+		console.log('showing whatcha searched for')
+		this.ets.category_path[0] = keywords
+		this.ets.fetch({
+			processData:true
+		})
+	},
 
-// })
+	showDetailsScreen: function(id){
+		console.log('showing your details!')
+	},
+
+	initialize: function(){
+		this.ets = new EtsyCollection()
+		this.hv = new HomeView({collection:this.ec})
+		Backbone.history.start()
+	}
+
+})
 
 var hv = new HomeView({collection: ets})
 
